@@ -15,18 +15,19 @@ max_vars=c(10,3,12)
 ## define variables
 hyperCubeSample=matrix(1:(binNum*inputNum), nrow = binNum, ncol = inputNum)
 colnames(hyperCubeSample) <- Name_vars
+
 bin_sample=matrix(1:(binNum*inputNum), nrow = binNum, ncol = inputNum)
 
 ## Find one random sample inside each bin for each input parameter
 bin_size=(max_vars-min_vars)/binNum
-for (i in 1:binNum) {
-  for(j in 1:inputNum) {
+for(j in 1:inputNum) {
+  for (i in 1:binNum) {
     rnd<-runif(1, 0, 1) 
     bin_sample[i,j]=min_vars[j]+(i-1)*bin_size[j]+rnd*bin_size[j]
   }
 }
 
-## Generate a matrix which contains in each coloumn, corresponding to one input parameters, 
+## Generate a matrix which contains in each coloumn, corresponding to one input parameter, 
 #  random non-repeated numbers from 1 to 10 
 tensionRand=sample(c(1:binNum), size=binNum, replace=FALSE)
 diamterRand=sample(c(1:binNum), size=binNum, replace=FALSE)
@@ -36,13 +37,15 @@ sampleExp=cbind (tensionRand, diamterRand, contractRand)
 ## use random matrix, generated above, to select values already chosen inside each bin. 
 for (j in 1:inputNum) {
   for (i in 1:binNum ) {
-    a=sampleExp[i,j]
-    hyperCubeSample[i,j]=bin_sample[a,j]
+    hyperCubeSample[i,j]=bin_sample[sampleExp[i,j],j]
   }
 }
 
 ## plot the resutls
 hyperCubeSampledata=as.data.frame(hyperCubeSample)
-scatterplot3d(TensionR,Diameter,Contract, pch=16, highlight.3d=TRUE,
+scatterplot3d(hyperCubeSampledata$TensionR,
+              hyperCubeSampledata$Diameter,
+              hyperCubeSampledata$Contract, 
+              pch=16, highlight.3d=TRUE,
               type="h", main="Latin Hypercube Sampling",grid=TRUE) 
 addgrids3d(TensionR,Diameter,Contract, grid = c("xy", "xz", "yz"))
